@@ -1,5 +1,3 @@
 include:
-  - path: jellyfin.compose.yaml
-    env_file: .env
-  - path: ./services/backend/docker-compose.yml
+  - path: jellyfin.compose.yml
     env_file: .env
