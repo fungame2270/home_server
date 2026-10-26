@@ -1,3 +1,10 @@
 include:
   - path: jellyfin.compose.yml
     env_file: .env
+  - path: radarr.compose.yml
+    env_file: .env
+  - path: transmission.compose.yml
+    env_file: .env
+  - path: prowlarr.compose.yml
+    env_file: .env
+  
