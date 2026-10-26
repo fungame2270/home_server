@@ -1,0 +1,15 @@
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ${BASE_PATH}/jellyfin/data:/config
+      - ${BASE_PATH}/jellyfin/tvseries:/data/tvshows
+      - ${BASE_PATH}/jellyfin/intros:/data/intros
+      - ${BASE_PATH}/jellyfin/movies:/data/movies
+    ports:
+      - 8096:8096
+    restart: unless-stopped
