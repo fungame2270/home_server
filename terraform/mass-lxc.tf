@@ -28,28 +28,3 @@ resource "proxmox_lxc" "music_assistant" {
 output "music_assistant_ip" {
   value = proxmox_lxc.music_assistant.network[0].ip
 }
-
-resource "terraform_data" "ansible_provisioner" {
-  triggers_replace = [
-    proxmox_lxc.music_assistant.id
-  ]
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      IP="192.168.30.23"
-
-      echo "Waiting for container SSH listener..."
-      until nc -z -w 2 "$IP" 22; do
-        sleep 2
-      done
-
-      # Run playbook using an ad-hoc in-memory inventory (trailing comma is required)
-      ansible-playbook \
-        -i "$IP," \
-        --private-key ~/.ssh/id_ed25519 \
-        mass-playbook.yml
-    EOT
-  }
-
-  depends_on = [proxmox_lxc.music_assistant]
-}

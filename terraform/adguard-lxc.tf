@@ -28,28 +28,3 @@ resource "proxmox_lxc" "adguard" {
 output "adguard_ip" {
   value = proxmox_lxc.adguard.network[0].ip
 }
-
-resource "terraform_data" "ansible_provisioner" {
-  triggers_replace = [
-    proxmox_lxc.adguard.id
-  ]
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      IP="192.168.30.31"
-
-      echo "Waiting for container SSH listener..."
-      until nc -z -w 2 "$IP" 22; do
-        sleep 2
-      done
-
-      # Run playbook using an ad-hoc in-memory inventory (trailing comma is required)
-      ansible-playbook \
-        -i "$IP," \
-        --private-key ~/.ssh/id_ed25519 \
-        adguard-playbook.yml
-    EOT
-  }
-
-  depends_on = [proxmox_lxc.adguard]
-}

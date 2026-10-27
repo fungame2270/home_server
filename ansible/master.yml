@@ -1,0 +1,7 @@
+# 1. AdGuard Home specific deployment
+- name: Deploy AdGuard Home
+  import_playbook: playbooks/adguard.yml
+
+# 2. Music Assistant specific deployment
+- name: Deploy Music Assistant
+  import_playbook: playbooks/music-assistant.yml
