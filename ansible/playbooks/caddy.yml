@@ -1,0 +1,156 @@
+- name: Deploy Caddy Reverse Proxy on Alpine LXC
+  hosts: proxy
+  gather_facts: false
+  vars:
+    ansible_user: root
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    caddy_user: "caddy"
+    caddy_group: "caddy"
+    caddy_config_dir: "/etc/caddy"
+    caddy_data_dir: "/var/lib/caddy"
+    
+    # Your domain and Cloudflare API Token (use ansible-vault in production)
+    root_domain: "yourdomain.eu"
+    cloudflare_api_token: "YOUR_CLOUDFLARE_API_TOKEN"
+
+    adguard_ip: "192.168.30.31"
+
+  tasks:
+    - name: Ensure Python and base tools are installed on Alpine
+      ansible.builtin.raw: >
+        test -x /usr/bin/python3 || (apk update && apk add --no-cache python3 ca-certificates curl tar libcap)
+      changed_when: false
+
+    - name: Create Caddy system group
+      ansible.builtin.group:
+        name: "{{ caddy_group }}"
+        system: true
+        state: present
+
+    - name: Create Caddy system user
+      ansible.builtin.user:
+        name: "{{ caddy_user }}"
+        group: "{{ caddy_group }}"
+        system: true
+        home: "{{ caddy_data_dir }}"
+        shell: "/sbin/nologin"
+        create_home: true
+        state: present
+
+    - name: Create configuration and log directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ caddy_user }}"
+        group: "{{ caddy_group }}"
+        mode: '0750'
+      loop:
+        - "{{ caddy_config_dir }}"
+        - "{{ caddy_data_dir }}"
+        - "/var/log/caddy"
+
+    - name: Download Caddy with Cloudflare DNS plugin directly from Caddy build server
+      ansible.builtin.get_url:
+        url: "https://caddyserver.com/api/download?os=linux&arch=amd64&p=github.com%2Fcaddy-dns%2Fcloudflare"
+        dest: "/usr/sbin/caddy"
+        mode: '0755'
+        owner: root
+        group: root
+        force: false
+      notify: Restart Caddy
+
+    - name: Allow Caddy to bind to privileged ports (80/443) without root
+      ansible.builtin.command:
+        cmd: "setcap cap_net_bind_service=+ep /usr/sbin/caddy"
+      changed_when: false
+
+    - name: Deploy Caddy environment file (stores API token securely)
+      ansible.builtin.copy:
+        dest: "{{ caddy_config_dir }}/caddy.env"
+        owner: "{{ caddy_user }}"
+        group: "{{ caddy_group }}"
+        mode: '0600'
+        content: |
+          CF_API_TOKEN="{{ cloudflare_api_token }}"
+      notify: Restart Caddy
+
+    - name: Deploy OpenRC service script
+      ansible.builtin.copy:
+        dest: "/etc/init.d/caddy"
+        owner: root
+        group: root
+        mode: '0755'
+        content: |
+          #!/sbin/openrc-run
+          name="caddy"
+          description="Caddy web server"
+
+          command="/usr/sbin/caddy"
+          command_args="run --config /etc/caddy/Caddyfile"
+          command_user="{{ caddy_user }}:{{ caddy_group }}"
+          command_background=true
+          pidfile="/run/caddy.pid"
+          capabilities="^cap_net_bind_service"
+
+          # Load environment variables (Cloudflare Token)
+          export $(grep -v '^#' /etc/caddy/caddy.env | xargs)
+
+          depend() {
+            need net localmount
+            after firewall
+          }
+
+          reload() {
+            ebegin "Reloading Caddy configuration"
+            $command reload --config /etc/caddy/Caddyfile
+            eend $?
+          }
+      notify: Restart Caddy
+
+    - name: Deploy Caddyfile template
+      ansible.builtin.copy:
+        dest: "{{ caddy_config_dir }}/Caddyfile"
+        owner: "{{ caddy_user }}"
+        group: "{{ caddy_group }}"
+        mode: '0644'
+        content: |
+          {
+            # Optional: Email for Let's Encrypt expiration notices
+            email certs@{{ root_domain }}
+          }
+
+          # Reusable DNS-01 Cloudflare TLS snippet
+          (cf_tls) {
+            tls {
+              dns cloudflare {env.CF_API_TOKEN}
+            }
+          }
+
+          # AdGuard Home Reverse Proxy
+          adguard.{{ root_domain }} {
+            import cf_tls
+            reverse_proxy {{ adguard_ip }}:3000
+          }
+
+          # Music Assistant Reverse Proxy
+          music.{{ root_domain }} {
+            import cf_tls
+            reverse_proxy {{ mass_ip }}:8095
+          }
+      notify: Reload Caddy
+
+    - name: Enable and ensure Caddy service is running
+      community.general.openrc:
+        name: caddy
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart Caddy
+      community.general.openrc:
+        name: caddy
+        state: restarted
+
+    - name: Reload Caddy
+      ansible.builtin.command:
+        cmd: "rc-service caddy reload"
