@@ -3,24 +3,24 @@ terraform {
 
   required_providers {
     proxmox = {
-      source  = "telmate/proxmox"
-      version = "3.0.2-rc04"
+      source  = "bpg/proxmox"
+      version = "~> 0.68.0" # or latest 0.x release
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.5"
     }
   }
 }
 
 provider "proxmox" {
-  pm_api_url = var.pm_api_url
+  endpoint = var.pve_endpoint
+  insecure = true
 
-  pm_api_token_id     = var.pm_api_token_id
-  pm_api_token_secret = var.pm_api_token_secret
+  api_token = "${var.pve_token_id}=${var.pve_token_secret}"
 
-  pm_tls_insecure = true
-
-  pm_log_enable = true
-  pm_debug      = true
-  pm_log_levels = {
-    _default    = "debug"
-    _capturelog = ""
+  ssh {
+    agent    = true
+    username = "root"
   }
 }

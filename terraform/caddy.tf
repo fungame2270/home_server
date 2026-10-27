@@ -1,33 +1,54 @@
-resource "proxmox_lxc" "caddy" {
-  target_node  = "pve"
-  vmid         = 302
-  hostname     = "caddy"
-  ostemplate   = var.lxc_image
-  password     = var.lxc_password
+resource "proxmox_virtual_environment_container" "caddy" {
+  node_name    = "pve"
+  vm_id        = 302
   unprivileged = true
 
-  onboot = true
+  start_on_boot = true
+  started       = true
 
-  cores  = 1
-  memory = 256
-  swap   = 256
-
-  rootfs {
-    storage = "local-lvm"
-    size    = "3G"
+  cpu {
+    cores = 1
   }
 
-  network {
+  memory {
+    dedicated = 256
+    swap      = 256
+  }
+
+  disk {
+    datastore_id = "local-lvm"
+    size         = 3
+  }
+
+  operating_system {
+    template_file_id = proxmox_virtual_environment_file.alpine_ansible_template.id
+    type             = "alpine"
+  }
+
+  initialization {
+    hostname = "caddy"
+
+    user_account {
+      password = var.lxc_password
+      keys = [
+        trimspace(file("~/.ssh/id_ed25519.pub"))
+      ]
+    }
+
+    ip_config {
+      ipv4 {
+        address = "192.168.30.32/24"
+        gateway = "192.168.30.1"
+      }
+    }
+  }
+
+  network_interface {
     name   = "eth0"
     bridge = "vmbr0"
-    ip     = "192.168.30.32/24"
-    gw     = "192.168.30.1"
   }
-
-  ssh_public_keys = file("~/.ssh/id_ed25519.pub")
-  start           = true
 }
 
 output "caddy_ip" {
-  value = proxmox_lxc.caddy.network[0].ip
+  value = proxmox_virtual_environment_container.caddy.initialization[0].ip_config[0].ipv4[0].address
 }

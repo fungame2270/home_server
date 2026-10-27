@@ -1,14 +1,14 @@
-variable "pm_api_url" {
+variable "pve_endpoint" {
   type        = string
-  description = "The Proxmox API URL (e.g., https://192.168.1.100:8006/api2/json)"
+  description = "The Proxmox API URL (e.g., https://192.168.1.100:8006)"
 }
 
-variable "pm_api_token_id" {
+variable "pve_token_id" {
   type        = string
   description = "The Proxmox API token ID (e.g., terraform@pve!tf-token)"
 }
 
-variable "pm_api_token_secret" {
+variable "pve_token_secret" {
   type        = string
   description = "The Proxmox API token UUID secret"
   sensitive   = true
