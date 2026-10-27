@@ -36,7 +36,7 @@ resource "terraform_data" "ansible_provisioner" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      IP="10.99.90.15"
+      IP="192.168.30.23"
 
       echo "Waiting for container SSH listener..."
       until nc -z -w 2 "$IP" 22; do
@@ -47,7 +47,7 @@ resource "terraform_data" "ansible_provisioner" {
       ansible-playbook \
         -i "$IP," \
         --private-key ~/.ssh/id_ed25519 \
-        playbook-mass.yml
+        mass-playbook.yml
     EOT
   }
 
