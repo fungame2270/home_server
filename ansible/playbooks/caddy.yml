@@ -146,11 +146,11 @@
         enabled: true
 
   handlers:
-    - name: Restart Caddy
-      community.general.openrc:
-        name: caddy
-        state: restarted
+  - name: Restart Caddy
+    ansible.builtin.service:
+      name: caddy
+      state: restarted
 
-    - name: Reload Caddy
-      ansible.builtin.command:
-        cmd: "rc-service caddy reload"
+  - name: Reload Caddy
+    ansible.builtin.command:
+      cmd: "rc-service caddy reload"

@@ -7,9 +7,6 @@ resource "local_file" "ansible_inventory" {
     [caddy]
     ${split("/", proxmox_virtual_environment_container.caddy.initialization[0].ip_config[0].ipv4[0].address)[0]}
 
-    [music_assistant]
-    ${split("/", proxmox_virtual_environment_container.music_assistant.initialization[0].ip_config[0].ipv4[0].address)[0]}
-
     [all:vars]
     ansible_user=root
     ansible_ssh_private_key_file=~/.ssh/id_ed25519
