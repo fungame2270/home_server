@@ -23,5 +23,5 @@ variable "lxc_password" {
 variable "lxc_image" {
   type        = string
   description = "The LXC image template to use (e.g., local:alpine-3.24-default_20260714_amd64.tar.xz)"
-  default     = "local:alpine-3.24-default_20260714_amd64.tar.xz"
+  default     = "local:vztmpl/alpine-3.24-default_20260714_amd64.tar.xz"
 }
