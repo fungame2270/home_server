@@ -1,5 +1,6 @@
 .env
 
+inventory.ini
 # Local state files
 *.tfstate
 *.tfstate.*

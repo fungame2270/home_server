@@ -40,8 +40,8 @@
         chdir: "{{ adguard_install_dir }}/AdGuardHome"
         creates: "/etc/init.d/AdGuardHome"
 
-    - name: Ensure AdGuard Home service is enabled and started
-      community.general.openrc:
+    - name: Ensure AdGuard Home service is running
+      ansible.builtin.service:
         name: AdGuardHome
         state: started
         enabled: true
