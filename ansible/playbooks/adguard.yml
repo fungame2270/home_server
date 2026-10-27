@@ -1,5 +1,5 @@
 - name: Configure AdGuard Home on Alpine LXC
-  hosts: all
+  hosts: adguard
   gather_facts: false
   vars:
     ansible_user: root
