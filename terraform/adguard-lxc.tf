@@ -11,7 +11,7 @@ resource "proxmox_lxc" "adguard" {
 
   rootfs {
     storage = "local-lvm"
-    size    = "5G"
+    size    = "2G"
   }
 
   network {
