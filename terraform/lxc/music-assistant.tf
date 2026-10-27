@@ -2,7 +2,7 @@ resource "proxmox_lxc" "music_assistant" {
   target_node  = "dev1"
   vmid         = 201
   hostname     = "music-assistant"
-  ostemplate   = "local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
+  ostemplate   = var.lxc_image
   password     = var.lxc_password
   unprivileged = true
 

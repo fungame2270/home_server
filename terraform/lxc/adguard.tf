@@ -1,8 +1,8 @@
 resource "proxmox_lxc" "adguard" {
-  target_node  = "dev1"
+  target_node  = "pve"
   vmid         = 301
   hostname     = "adguard"
-  ostemplate   = "local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
+  ostemplate   = var.lxc_image
   password     = var.lxc_password
   unprivileged = true
 
