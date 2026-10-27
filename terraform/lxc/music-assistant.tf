@@ -1,5 +1,5 @@
 resource "proxmox_lxc" "music_assistant" {
-  target_node  = "dev1"
+  target_node  = "pve"
   vmid         = 201
   hostname     = "music-assistant"
   ostemplate   = var.lxc_image

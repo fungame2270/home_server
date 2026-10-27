@@ -1,6 +1,6 @@
 resource "proxmox_lxc" "caddy" {
-  target_node  = "dev1"
-  vmid         = 301
+  target_node  = "pve"
+  vmid         = 302
   hostname     = "caddy"
   ostemplate   = var.lxc_image
   password     = var.lxc_password
