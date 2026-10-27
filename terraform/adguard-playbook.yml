@@ -1,0 +1,47 @@
+- name: Configure AdGuard Home on Alpine LXC
+  hosts: all
+  gather_facts: false
+  vars:
+    ansible_user: root
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    adguard_install_dir: /opt
+
+  tasks:
+    - name: Ensure prerequisite packages are installed
+      community.general.apk:
+        name:
+          - curl
+          - tar
+          - ca-certificates
+        state: present
+        update_cache: true
+
+    - name: Download AdGuard Home static release binary
+      ansible.builtin.get_url:
+        url: "https://static.adguard.com/adguardhome/release/AdGuardHome_linux_amd64.tar.gz"
+        dest: "/tmp/AdGuardHome_linux_amd64.tar.gz"
+        mode: '0644'
+
+    - name: Extract AdGuard Home archive to target directory
+      ansible.builtin.unarchive:
+        src: "/tmp/AdGuardHome_linux_amd64.tar.gz"
+        dest: "{{ adguard_install_dir }}"
+        remote_src: true
+        creates: "{{ adguard_install_dir }}/AdGuardHome/AdGuardHome"
+
+    - name: Clean up download archive
+      ansible.builtin.file:
+        path: "/tmp/AdGuardHome_linux_amd64.tar.gz"
+        state: absent
+
+    - name: Install AdGuard Home OpenRC service via internal installer
+      ansible.builtin.command:
+        cmd: "./AdGuardHome -s install"
+        chdir: "{{ adguard_install_dir }}/AdGuardHome"
+        creates: "/etc/init.d/AdGuardHome"
+
+    - name: Ensure AdGuard Home service is enabled and started
+      community.general.openrc:
+        name: AdGuardHome
+        state: started
+        enabled: true
