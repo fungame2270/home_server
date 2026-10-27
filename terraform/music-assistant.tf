@@ -6,6 +6,8 @@ resource "proxmox_lxc" "music_assistant" {
   password     = var.lxc_password
   unprivileged = true
 
+  onboot = true
+
   cores  = 1
   memory = 1024
 

@@ -6,6 +6,8 @@ resource "proxmox_lxc" "caddy" {
   password     = var.lxc_password
   unprivileged = true
 
+  onboot = true
+
   cores  = 1
   memory = 256
   swap   = 256

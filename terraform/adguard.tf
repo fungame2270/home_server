@@ -6,6 +6,8 @@ resource "proxmox_lxc" "adguard" {
   password     = var.lxc_password
   unprivileged = true
 
+  onboot = true
+
   cores  = 1
   memory = 512
 
