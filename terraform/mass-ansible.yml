@@ -1,0 +1,79 @@
+---
+- name: Configure Music Assistant on Alpine LXC
+  hosts: all
+  gather_facts: false
+  vars:
+    ansible_user: root
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    mass_dir: /opt/server
+
+  tasks:
+    - name: Upgrade Alpine repository mirror to v3.20
+      ansible.builtin.replace:
+        path: /etc/apk/repositories
+        regexp: 'v3\.\d+'
+        replace: 'v3.20'
+
+    - name: Update apk index and perform system upgrade
+      community.general.apk:
+        update_cache: true
+        upgrade: true
+
+    - name: Install system runtime and build packages
+      community.general.apk:
+        name:
+          - git
+          - curl
+          - ffmpeg
+          - snapcast
+          - sox
+          - libpulse
+          - alsa-utils
+          - build-base
+          - linux-headers
+          - libffi-dev
+          - openssl-dev
+          - cargo
+          - python3
+          - py3-pip
+          - py3-virtualenv
+          - python3-dev
+        state: present
+
+    - name: Clone Music Assistant Server repository
+      ansible.builtin.git:
+        repo: 'https://github.com/music-assistant/server.git'
+        dest: "{{ mass_dir }}"
+        version: main
+
+    - name: Create Python virtual environment and install requirements
+      ansible.builtin.pip:
+        requirements: "{{ mass_dir }}/requirements_all.txt"
+        virtualenv: "{{ mass_dir }}/venv"
+        virtualenv_command: python3 -m venv
+
+    - name: Create OpenRC service definition
+      ansible.builtin.copy:
+        dest: /etc/init.d/music-assistant
+        mode: '0755'
+        content: |
+          #!/sbin/openrc-run
+          name="Music Assistant"
+          description="Music Assistant Server"
+
+          command="{{ mass_dir }}/venv/bin/python"
+          command_args="-m music_assistant"
+          directory="{{ mass_dir }}"
+          command_background=true
+          pidfile="/run/music-assistant.pid"
+
+          depend() {
+            need net
+            after firewall
+          }
+
+    - name: Enable and start Music Assistant service
+      community.general.openrc:
+        name: music-assistant
+        state: started
+        enabled: true
