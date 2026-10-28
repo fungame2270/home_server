@@ -9,6 +9,6 @@ include:
     env_file: .env
   - path: sonarr.compose.yml
     env_file: .env
-  - path: overseerr.compose.yml
+  - path: seerr.compose.yml
     env_file: .env
   
