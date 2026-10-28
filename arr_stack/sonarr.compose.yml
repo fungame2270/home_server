@@ -1,7 +1,7 @@
 services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
-    name: sonarr
+    container_name: sonarr
     environment:
       - PUID=1000
       - PGID=1000
