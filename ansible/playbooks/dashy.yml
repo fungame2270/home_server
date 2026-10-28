@@ -1,0 +1,76 @@
+- name: Configure Dashy on Alpine LXC
+  hosts: dashy
+  gather_facts: false
+  vars:
+    ansible_user: root
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    dashy_install_dir: /opt
+
+  tasks:
+    - name: Ensure prerequisite packages are installed
+      community.general.apk:
+        name:
+          - curl
+          - git
+          - yarn
+        state: present
+        update_cache: true
+
+    - name: Clone Dashy repository from GitHub
+      ansible.builtin.git:
+        repo: "https://github.com/Lissy93/dashy.git"
+        dest: "{{ dashy_install_dir }}/dashy"
+        version: "master"
+
+    - name: Install Dashy dependencies using yarn
+      ansible.builtin.command:
+        cmd: "yarn install"
+        chdir: "{{ dashy_install_dir }}/dashy"
+        creates: "{{ dashy_install_dir }}/dashy/node_modules"
+
+    - name: configure Dashy
+      ansible.builtin.copy:
+        src: "../config/dashy/config.yml"
+        dest: "{{ dashy_install_dir }}/dashy/public/conf.yml"
+        owner: root
+        group: root
+        mode: '0644'
+    
+    - name: Build Dashy application
+      ansible.builtin.command:
+        cmd: "yarn build"
+        chdir: "{{ dashy_install_dir }}/dashy"
+    
+    - name: Create Dashy OpenRC service file
+      ansible.builtin.copy:
+        dest: /etc/init.d/dashy
+        mode: "0755"
+        content: |
+          #!/sbin/openrc-run
+
+          name="Dashy"
+          description="Dashy dashboard"
+          directory="{{ dashy_install_dir }}/dashy"
+          command="/usr/bin/yarn"
+          command_args="start"
+          command_background=true
+          pidfile="/run/dashy.pid"
+          output_log="/var/log/dashy.log"
+          error_log="/var/log/dashy.err"
+
+          depend() {
+              need net
+          }
+      notify: Restart Dashy
+
+    - name: Enable and start Dashy
+      ansible.builtin.service:
+        name: dashy
+        enabled: true
+        state: started
+        
+  handlers:
+    - name: Restart Dashy
+      ansible.builtin.service:
+        name: dashy
+        state: restarted

@@ -1,0 +1,53 @@
+appConfig:
+  theme: glass
+  language: en
+pageInfo:
+  title: Victal Home Server
+  description: Welcome Victal how are you today?
+sections:
+  - name: Arr-Stack
+    icon: 'fas fa-film '
+    items:
+      - title: Jellyfin
+        description: The Media Server
+        icon: hl-jellyfin
+        localUrl: http://192.168.30.22:8096
+        target: newtab
+      - title: Radarr
+        description: Movie Manager
+        icon: hl-radarr
+        localUrl: http://192.168.30.22:7878
+        target: newtab
+      - title: Sonarr
+        description: Series Manager
+        icon: hl-Sonarr
+        localUrl: http://192.168.30.22:8989
+        target: newtab
+      - title: Prowlarr
+        description: Indexer ArrStack
+        icon: hl-prowlarr
+        target: newtab
+        localUrl: http://192.168.30.22:9696
+      - title: seerr
+        icon: hl-seerr
+        target: newtab
+        localUrl: http://192.168.30.22:5055
+      - title: Transmission
+        description: Torrent Client
+        icon: hl-transmission
+        target: newtab
+        localUrl: http://192.168.30.22:9091
+  - name: Network
+    icon: 'fa fa-globe '
+    items:
+      - title: Ad Guard
+        description: Dns server and blocker
+        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/adguard-home.webp
+        target: newtab
+        localUrl: http://192.168.30.31/
+      - title: Caddy
+        description: Reverse Proxy
+        icon: hl-caddy
+        url: oww
+        target: newtab
+pages: []
