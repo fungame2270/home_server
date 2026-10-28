@@ -7,4 +7,8 @@ include:
     env_file: .env
   - path: prowlarr.compose.yml
     env_file: .env
+  - path: sonarr.compose.yml
+    env_file: .env
+  - path: overseerr.compose.yml
+    env_file: .env
   
