@@ -4,6 +4,9 @@ resource "local_file" "ansible_inventory" {
     [adguard]
     ${split("/", proxmox_virtual_environment_container.adguard.initialization[0].ip_config[0].ipv4[0].address)[0]}
 
+    [dashy]
+    ${split("/", proxmox_virtual_environment_container.dashy.initialization[0].ip_config[0].ipv4[0].address)[0]}
+
     [caddy]
     ${split("/", proxmox_virtual_environment_container.caddy.initialization[0].ip_config[0].ipv4[0].address)[0]}
 
