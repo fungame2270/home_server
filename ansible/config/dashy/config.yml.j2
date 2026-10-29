@@ -50,4 +50,20 @@ sections:
         icon: hl-caddy
         url: oww
         target: newtab
+  - name: Proxmox Cluster
+    icon: si-proxmox
+    widgets:
+      - type: proxmox-lists
+        useProxy: true
+        options:
+          cluster_url: http://192.168.30.176:8006
+          user_name: {{ proxmox_dashy_token_user_id }}
+          token_name: {{ proxmox_dashy_token_name }}
+          token_uuid: {{ proxmox_dashy_token_uuid }}
+          allowInsecure: true
+          node: pve
+          node_data: lxc
+          title: Proxmox LXCs
+          title_as_link: true
+          hide_templates: 1
 pages: []

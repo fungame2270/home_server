@@ -1,4 +1,5 @@
 .env
+vault.yml
 
 inventory.ini
 # Local state files

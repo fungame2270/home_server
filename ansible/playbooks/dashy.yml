@@ -13,6 +13,7 @@
           - curl
           - git
           - yarn
+          - openssh-sftp-server
         state: present
         update_cache: true
 
@@ -21,6 +22,8 @@
         repo: "https://github.com/Lissy93/dashy.git"
         dest: "{{ dashy_install_dir }}/dashy"
         version: "master"
+        force: yes
+      register: git_clone
 
     - name: Install Dashy dependencies using yarn
       ansible.builtin.command:
@@ -28,19 +31,28 @@
         chdir: "{{ dashy_install_dir }}/dashy"
         creates: "{{ dashy_install_dir }}/dashy/node_modules"
 
-    - name: configure Dashy
-      ansible.builtin.copy:
-        src: "../config/dashy/config.yml"
-        dest: "{{ dashy_install_dir }}/dashy/public/conf.yml"
-        owner: root
-        group: root
-        mode: '0644'
     
+    - name: Check if Dashy build directory exists
+      ansible.builtin.stat:
+        path: "{{ dashy_install_dir }}/dashy/dist/index.html"
+      register: dashy_dist
+
     - name: Build Dashy application
       ansible.builtin.command:
         cmd: "yarn build"
         chdir: "{{ dashy_install_dir }}/dashy"
+      when: git_clone.changed or not dashy_dist.stat.exists
+      notify: Restart Dashy
     
+    - name: Deploy Dashy configuration
+      ansible.builtin.template:
+        src: "../config/dashy/config.yml.j2"
+        dest: "{{ dashy_install_dir }}/dashy/user-data/conf.yml"
+        owner: 1000
+        group: 1000
+        mode: '0644'
+      notify: Restart Dashy
+
     - name: Create Dashy OpenRC service file
       ansible.builtin.copy:
         dest: /etc/init.d/dashy
