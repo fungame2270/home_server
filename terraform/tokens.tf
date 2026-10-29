@@ -10,6 +10,10 @@ resource "proxmox_virtual_environment_role" "dashy_monitor" {
 resource "proxmox_virtual_environment_user" "dashy_user" {
   user_id = "dashy-monitor@pve"
   comment = "Managed by Terraform for Dashy"
+
+  lifecycle {
+    ignore_changes = [acl]
+  }
 }
 
 resource "proxmox_virtual_environment_user_token" "dashy_token" {
