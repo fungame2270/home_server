@@ -15,7 +15,7 @@ resource "proxmox_virtual_environment_file" "debian_ansible_template" {
   node_name    = "pve"
 
   source_file {
-    path = "debian-13-standard_13.6-1_amd64.tar.zst"
+    path = "http://download.proxmox.com/images/system/debian-13-standard_13.6-1_amd64.tar.zst"
     file_name = "debian-13-standard_13.6-1_amd64.tar.zst"
   }
 }
