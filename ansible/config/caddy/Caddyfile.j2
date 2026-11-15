@@ -1,8 +1,8 @@
 {
-	local_certs
+    email {{ email }}
 }
-
 (lan_only) {
+	tls internal
 	@external not remote_ip private_ranges
 	respond @external "Access Denied" 403
 }
@@ -12,9 +12,13 @@
 # ==========================================
 
 jellyfin.{{ my_domain }} {
-	reverse_proxy 192.168.30.22:8096{
+	reverse_proxy 192.168.30.22:8096 {
         flush_interval -1
     }
+}
+
+home.{{ my_domain }} {
+	reverse_proxy 192.168.30.10:8123
 }
 
 seerr.{{ my_domain }} {
