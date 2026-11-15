@@ -12,7 +12,9 @@
 # ==========================================
 
 jellyfin.{{ my_domain }} {
-	reverse_proxy 192.168.30.22:8096
+	reverse_proxy 192.168.30.22:8096{
+        flush_interval -1
+    }
 }
 
 seerr.{{ my_domain }} {
