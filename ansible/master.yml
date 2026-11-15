@@ -1,6 +1,10 @@
-# 1. AdGuard Home specific deployment
+
 - name: Deploy AdGuard Home
   import_playbook: playbooks/adguard.yml
 
 - name: Deploy Caddy
   import_playbook: playbooks/caddy.yml
+
+- name: Deploy Dashy
+  import_playbook: playbooks/dashy.yml
+    
