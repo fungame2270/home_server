@@ -1,16 +1,14 @@
-# Add this at the very top of your Caddyfile to use local self-signed certs for ALL sites
 {
 	local_certs
 }
 
-# Reusable snippet to block external (WAN) traffic
 (lan_only) {
 	@external not remote_ip private_ranges
 	respond @external "Access Denied" 403
 }
 
 # ==========================================
-# PUBLIC / EXTERNAL SERVICES (WAN + LAN)
+# PUBLIC / EXTERNAL SERVICES
 # ==========================================
 
 jellyfin.{{ my_domain }} {
@@ -22,7 +20,7 @@ seerr.{{ my_domain }} {
 }
 
 # ==========================================
-# INTERNAL ONLY SERVICES (LAN ONLY)
+# INTERNAL ONLY SERVICES
 # ==========================================
 
 dashy.{{ my_domain }} {
