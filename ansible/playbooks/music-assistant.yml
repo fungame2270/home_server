@@ -1,0 +1,36 @@
+- name: Deploy Music Assistant on Alpine LXC using docker
+  hosts: music_assistant
+  gather_facts: false
+
+  tasks:
+    - name: Install python3, docker, and docker compose plugin
+      ansible.builtin.raw: >
+        apk update && apk add --no-cache python3 docker docker-cli-compose
+      changed_when: false
+
+    - name: Ensure docker service is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Download compose file from GitHub if changed
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/fungame2270/home_server/main/docker/music_assistant.compose.yml"
+        dest: "/opt/docker-compose.yml"
+        mode: "0644"
+        force: true
+      notify: Redeploy Music Assistant
+
+    - name: Ensure Music Assistant is running
+      ansible.builtin.command:
+        cmd: "docker compose -f /opt/docker-compose.yml up -d"
+        chdir: "/opt"
+      register: compose_out
+      changed_when: "'Started' in compose_out.stderr or 'Recreated' in compose_out.stderr"
+
+  handlers:
+    - name: Redeploy Music Assistant
+      ansible.builtin.command:
+        cmd: "docker compose -f /opt/docker-compose.yml up -d --force-recreate"
+        chdir: "/opt"
