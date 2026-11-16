@@ -1,0 +1,13 @@
+services:
+  music-assistant-server:
+    image: ghcr.io/music-assistant/server:latest
+    container_name: music-assistant-server
+    restart: unless-stopped
+    network_mode: host
+    ports:
+      - "80:8095"
+    volumes:
+      - ${USERDIR:-$HOME}/docker/music-assistant-server/data:/data/
+      # - /path/to/your/music:/media:ro
+    environment:
+      - LOG_LEVEL=info
