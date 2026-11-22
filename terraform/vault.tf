@@ -25,5 +25,8 @@ resource "local_file" "ansible_vault" {
 proxmox_dashy_token_user_id: "${local.extracted_user_id}"
 proxmox_dashy_token_name: "${local.extracted_token_name}"
 proxmox_dashy_token_uuid: "${local.extracted_uuid}"
+
+my_domain: ${var.domain}
+email: ${var.email}
 EOT
 }

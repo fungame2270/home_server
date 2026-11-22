@@ -19,3 +19,15 @@ variable "lxc_password" {
   description = "Root password for LXC containers"
   sensitive   = true
 }
+
+variable "domain" {
+  type        = string
+  description = "Domain of infrastructure"
+  sensitive   = false
+}
+
+variable "email" {
+  type        = string
+  description = "Email for certbot"
+  sensitive   = false
+}
